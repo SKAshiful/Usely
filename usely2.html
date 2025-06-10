@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usely by Ashiful</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-512.png" type="image/png">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --accent: #00ffc3;
+      --card-bg: #1e1e1e;
+      --shadow: rgba(0, 255, 195, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); padding: 2rem; }
+    h1 { text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: var(--accent); animation: fadeIn 1s ease-in-out; }
+
+    .search-container { display: flex; justify-content: center; margin-bottom: 1rem; }
+    .search-container input {
+        width: 80%; padding: 1rem; border: none; border-radius: 12px; font-size: 1rem;
+        box-shadow: 0 0 15px var(--shadow); background: var(--card-bg); color: var(--text-color);
+        transition: all 0.3s ease; /* MODIFIED: Added transition */
+    }
+    /* NEW: Added focus animation for search bar */
+    .search-container input:focus {
+        transform: scale(1.01);
+        box-shadow: 0 0 25px var(--shadow);
+    }
+
+
+    /* --- Research Section --- */
+    #research-toggle-container { text-align: center; margin-bottom: 2rem; }
+    #research-toggle-btn { background-color: var(--accent); color: var(--bg-color); font-weight: 600; font-size: 1rem; padding: 0.6rem 1.5rem; border-radius: 10px; cursor: pointer; border: none; transition: all 0.2s ease; }
+    #research-services { display: none; /* Hidden by default */ }
+
+    /* --- Tabs --- */
+    #service-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+    .tab-btn { background: none; border: 2px solid var(--card-bg); color: var(--text-color); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+    .tab-btn.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); }
+    /* NEW: Added hover animation for tabs */
+    .tab-btn:hover:not(.active) {
+        transform: translateY(-3px);
+        border-color: var(--accent);
+    }
+
+    /* --- Panels --- */
+    .panel { max-width: 80%; margin: -1rem auto 2rem auto; padding: 1.5rem; display: none; background: var(--card-bg); border-radius: 12px; box-shadow: 0 0 15px var(--shadow); }
+    .panel.active { display: block; animation: fadeIn 0.5s ease; }
+
+    .panel h3 { margin-bottom: 0.75rem; }
+    .panel p { line-height: 1.6; opacity: 0.9; }
+
+    /* NEW: Service-specific styles for Wikipedia Panel */
+    .wiki-content-wrapper { display: flex; gap: 1.5rem; flex-wrap: wrap-reverse; align-items: flex-start; }
+    .wiki-text-content { flex: 2; min-width: 250px; }
+    .wiki-image-container { flex: 1; min-width: 180px; text-align: center; }
+    .wiki-image-container img { max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .wiki-title-link { text-decoration: none; color: var(--accent); font-weight: 600; font-size: 1.4rem; }
+    .visit-site-btn { display: inline-block; background-color: var(--accent); color: #121212; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 1rem; text-decoration: none; transition: background-color 0.2s; }
+    .visit-site-btn:hover { background-color: #ffffff; }
+
+
+    .dict-phonetic { font-style: italic; color: var(--accent); margin-bottom: 1rem; }
+    .dict-meaning { border-left: 3px solid var(--accent); padding-left: 1rem; margin-bottom: 1.5rem; }
+
+    #tts-button { background-color: var(--accent); color: #121212; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 1rem; transition: background-color 0.2s; }
+    #tts-button:hover { background-color: #ffffff; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+    .card { background: var(--card-bg); border-radius: 20px; padding: 2rem; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 0 25px var(--shadow); cursor: pointer;
+        /* NEW: Added card entrance animation */
+        animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    .card:hover { transform: scale(1.05); box-shadow: 0 0 40px var(--shadow); }
+    .card h2 { color: var(--accent); margin-bottom: 1rem; }
+    .card p { font-size: 0.95rem; opacity: 0.8; }
+
+    @media (max-width: 600px) { .search-container input, .panel { width: 100%; } }
+    /* MODIFIED: Updated fadeIn animation for a smoother effect */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    /* NEW: Keyframe animation for cards */
+    @keyframes popIn { to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+  <h1>Usely by Ashiful</h1>
+  <div class="search-container">
+    <input type="text" id="search" placeholder="Search for tools..." />
+  </div>
+
+  <div id="research-toggle-container">
+      <button id="research-toggle-btn">Start Research</button>
+  </div>
+
+  <div id="research-services">
+      <div id="service-tabs">
+          <!-- REMOVED: Translator and Market tabs -->
+          <button class="tab-btn active" data-service="wiki">Wikipedia</button>
+          <button class="tab-btn" data-service="dictionary">Dictionary</button>
+      </div>
+
+      <div id="results-panels">
+          <!-- REMOVED: Translator and Market panels -->
+          <div id="wiki-panel" class="panel active"></div>
+          <div id="dictionary-panel" class="panel"></div>
+      </div>
+  </div>
+
+  <div class="grid" id="cardGrid">
+    <!-- Card content remains the same -->
+    <div class="card" onclick="location.href='https://skashiful.github.io/WriteFlow/'"><h2>WriteFlow</h2><p>No downloads, no fuss, just open and write. A seamless space, day or night. WriteFlow makes it feel just right!</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/KeyBoost/'"><h2>KeyBoost</h2><p>Typing speed practice made easy! Track your progress, practice with random or custom text, and boost your WPM.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/QRCodeMaker/'"><h2>QRCodeMaker</h2><p>Generate & scan QR codes, barcodes, and more with powerful, customizable options—all in your browser.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/F2T/'"><h2>File to Text</h2><p>Transform files into encrypted text strings with password protection. Safe sharing in a privacy-focused way.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/Calculator/'"><h2>Smart Calculator</h2><p>All-in-one calculator for everyday math, science, and conversions.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/TicTacToe/'"><h2>Tic-Tac-Toe</h2><p>Welcome to Tic-Tac-Toe Online, a beautifully designed and fun version of the classic game! Whether you want to challenge a smart computer opponent or enjoy a match with your friend, this game has you covered.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/Weather/'"><h2>Ultra Weather Advisor</h2><p>Know the weather and what to wear—instantly, anywhere.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/WorldClock/'"><h2>World Clock Pro</h2><p>World clocks and live forecasts — designed for travelers, remote workers, and the curious.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/PassportPhotoMaker/'"><h2>Passport Photo Maker</h2><p>Craft professional passport photos with ease: precisely crop your image, decide on print quality, and print more passport-ready photos per sheet.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/SubstanceImpactCalculator/'"><h2>Substance Impact Calculator</h2><p>Your body keeps score, even when you don't. Find out exactly what your smoking, drinking, and substance use has cost you - and what you can still save.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/Ovia/'"><h2>Ovia</h2><p>Ovia makes period tracking simple. Log your cycles and symptoms, and get predictions for your period, ovulation, and fertile days. Understand your body better with Ovia.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/VisualJournals/'"><h2>Visual Journals</h2><p>A curated collection of contemporary Artworks by Ashiful</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/MorseCodeMaster/'"><h2>Morse Code Master</h2><p>Learn Morse Code Through Interactive Practice.</p></div>
+    <div class="card" onclick="location.href='https://skashiful.github.io/TypingTools/'"><h2>Multilingual Typing Tools</h2><p>Tools to help you type in various languages using phonetic input or on-screen keyboards.</p></div>
+  </div>
+
+  <script>
+    // --- Global Elements & State ---
+    const searchInput = document.getElementById("search");
+    const cardGrid = document.getElementById("cardGrid");
+    const researchToggleBtn = document.getElementById('research-toggle-btn');
+    const researchServicesContainer = document.getElementById('research-services');
+    const panels = {
+        // REMOVED: translate and market panels
+        wiki: document.getElementById("wiki-panel"),
+        dictionary: document.getElementById("dictionary-panel")
+    };
+    let activeService = 'wiki';
+    let debounceTimeout;
+
+    // REMOVED: FMP_API_KEY constant
+
+    // --- Service API Functions ---
+
+    // MODIFIED: Wikipedia search now fetches images
+    async function searchWikipedia(query) {
+        const WIKI_API = "https://en.wikipedia.org/w/api.php?origin=*&format=json";
+        try {
+            const searchRes = await fetch(`${WIKI_API}&action=opensearch&search=${encodeURIComponent(query)}&limit=1`);
+            const searchData = await searchRes.json();
+            const title = searchData[1][0];
+            if (!title) { renderWiki(null); return; }
+
+            // MODIFIED: Added prop=pageimages and pithumbsize to get an image
+            const extractRes = await fetch(`${WIKI_API}&action=query&prop=extracts|pageimages&exintro&explaintext&redirects=1&pithumbsize=400&titles=${encodeURIComponent(title)}`);
+            const extractData = await extractRes.json();
+            const pages = extractData.query.pages;
+            const page = pages[Object.keys(pages)[0]];
+            renderWiki(page);
+        } catch (error) { console.error("Wiki Error:", error); renderWiki(null); }
+    }
+
+    async function getDefinition(word) {
+        try {
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            if (!res.ok) { throw new Error('Word not found'); }
+            const data = await res.json();
+            renderDefinition(data[0]);
+        } catch (error) { console.error("Dict Error:", error); renderDefinition(null); }
+    }
+
+    // REMOVED: translateText and getMarketData functions
+
+    // --- Rendering Functions ---
+
+    // MODIFIED: renderWiki now displays an image and a "Visit Site" button
+    function renderWiki(page) {
+        const panel = panels.wiki;
+        if (!page || !page.extract) {
+            panel.innerHTML = '<p>No Wikipedia article found.</p>';
+            return;
+        }
+        const url = `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`;
+        const imageHTML = page.thumbnail ? `
+            <div class="wiki-image-container">
+                <img src="${page.thumbnail.source}" alt="${page.title}">
+            </div>` : '';
+
+        panel.innerHTML = `
+            <h3><a href="${url}" target="_blank" rel="noopener noreferrer" class="wiki-title-link">${page.title}</a></h3>
+            <div class="wiki-content-wrapper">
+                <div class="wiki-text-content">
+                    <p>${page.extract}</p>
+                    <button id="tts-button">Listen</button>
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="visit-site-btn">Visit Site</a>
+                </div>
+                ${imageHTML}
+            </div>`;
+        panel.querySelector('#tts-button').addEventListener('click', (e) => handleTTS(e.target, page.extract));
+    }
+
+    function renderDefinition(data) {
+        const panel = panels.dictionary;
+        if (!data) { panel.innerHTML = '<p>No definition found for this word.</p>'; return; }
+        const meaningsHTML = data.meanings.map(meaning => `
+            <div class="dict-meaning">
+                <p class="part-of-speech" style="font-weight:bold; margin-bottom:0.5rem;">${meaning.partOfSpeech}</p>
+                <ul style="margin-left:1.2rem;">${meaning.definitions.map(def => `<li style="margin-bottom:0.5rem;">${def.definition}</li>`).join('')}</ul>
+            </div>
+        `).join('');
+        panel.innerHTML = `
+            <h3>${data.word}</h3>
+            <p class="dict-phonetic">${data.phonetic || ''}</p>
+            ${meaningsHTML}`;
+    }
+
+    // REMOVED: renderTranslation and renderMarketData functions
+
+    // --- UI & Event Handlers ---
+
+    // REMOVED: setupTranslatorUI function
+
+    function initTabs() {
+        document.querySelectorAll('.tab-btn').forEach(tab => {
+            tab.addEventListener('click', () => {
+                activeService = tab.dataset.service;
+                document.querySelector('.tab-btn.active').classList.remove('active');
+                tab.classList.add('active');
+                document.querySelector('.panel.active').classList.remove('active');
+                panels[activeService].classList.add('active');
+                handleSearch(true); // Re-run search for new tab
+            });
+        });
+    }
+
+    function handleSearch(force = false) {
+        window.speechSynthesis.cancel();
+        const query = searchInput.value.trim();
+        filterCards(query.toLowerCase());
+
+        if (researchServicesContainer.style.display !== 'block' && !force) return;
+
+        clearTimeout(debounceTimeout);
+        if (query) {
+            Object.values(panels).forEach(p => p.classList.remove('active'));
+            panels[activeService].classList.add('active');
+            debounceTimeout = setTimeout(() => {
+                // MODIFIED: Simplified logic after removing services
+                if (activeService === 'wiki') searchWikipedia(query);
+                else if (activeService === 'dictionary') getDefinition(query);
+            }, 350);
+        } else {
+            Object.values(panels).forEach(p => { p.classList.remove('active'); p.innerHTML = ''; });
+        }
+    }
+
+    // --- Initializations ---
+    initTabs();
+    // REMOVED: setupTranslatorUI call
+    searchInput.addEventListener('input', () => handleSearch(false));
+
+    researchToggleBtn.addEventListener('click', () => {
+        const isHidden = researchServicesContainer.style.display === 'none';
+        researchServicesContainer.style.display = isHidden ? 'block' : 'none';
+        researchToggleBtn.textContent = isHidden ? 'Hide Research' : 'Start Research';
+        const placeholder = isHidden ? 'Search Wikipedia or Define...' : 'Search for tools...';
+        searchInput.setAttribute('placeholder', placeholder);
+    });
+    
+    // --- Other functions remain unchanged ---
+    function handleTTS(button, text) {
+        window.speechSynthesis.cancel();
+        if (button.textContent === "Listen") {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.onstart = () => { button.textContent = "Stop"; };
+            utterance.onend = () => { button.textContent = "Listen"; };
+            window.speechSynthesis.speak(utterance);
+        } else {
+             button.textContent = "Listen";
+        }
+    }
+
+    function filterCards(query) {
+        let delay = 0;
+        cardGrid.querySelectorAll(".card").forEach(card => {
+            const title = card.querySelector("h2").textContent.toLowerCase();
+            const description = card.querySelector("p").textContent.toLowerCase();
+            const isVisible = title.includes(query) || description.includes(query);
+            
+            card.style.display = isVisible ? "block" : "none";
+            // NEW: Staggered animation for visible cards
+            if (isVisible) {
+                card.style.animationDelay = `${delay}s`;
+                delay += 0.05;
+            }
+        });
+    }
+    
+    // --- PWA Add to Home Screen functionality ---
+    let deferredPrompt;
+    const addBtn = document.createElement("div");
+    addBtn.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background-color:#333; color:#fff; padding:10px 20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.3); font-size:16px; cursor:pointer; display:none; z-index: 100;";
+    addBtn.innerText = "Add to Home Screen";
+    document.body.appendChild(addBtn);
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      addBtn.style.display = "block";
+      addBtn.addEventListener("click", () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") console.log("User accepted prompt");
+          else console.log("User dismissed prompt");
+          deferredPrompt = null;
+          addBtn.style.display = "none";
+        });
+      });
+    });
+  </script>
+</body>
+</html>
