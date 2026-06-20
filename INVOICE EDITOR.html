@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Editor - M.A. Furniture</title>
+    <style>
+        :root { --primary-color: #2c3e50; --border-color: #000; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f0f0; margin: 0; display: flex; height: 100vh; }
+
+        /* Editor Panel */
+        .editor-panel { width: 380px; background: #2c3e50; color: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.2); }
+        .editor-panel h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #555; padding-bottom: 10px; color: #ecf0f1; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.75rem; margin-bottom: 4px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { width: 100%; padding: 8px; border-radius: 4px; border: none; box-sizing: border-box; background: #34495e; color: white; border: 1px solid #456789; font-family: inherit; }
+        textarea { resize: vertical; height: 60px; }
+        input:focus, textarea:focus { outline: 2px solid #3498db; background: #3d566e; }
+
+        /* Preview Panel */
+        .preview-panel { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; justify-content: center; background-color: #e0e0e0; }
+        .invoice-box { width: 800px; background: white; padding: 40px; box-shadow: 0 0 20px rgba(0,0,0,0.2); min-height: 1050px; color: #000; position: relative; }
+
+        /* Invoice UI Components */
+        .invoice-header-title { text-align: center; font-size: 24px; font-weight: bold; text-decoration: underline; margin-bottom: 15px; }
+        .header-container { border: 1px solid var(--border-color); padding: 15px; text-align: center; }
+        
+        .info-grid { display: flex; border: 1px solid var(--border-color); border-top: none; }
+        .info-col { flex: 1; padding: 10px; border-right: 1px solid var(--border-color); font-size: 13px; min-height: 110px; }
+        .info-col:last-child { border-right: none; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+        th, td { border: 1px solid var(--border-color); padding: 8px; font-size: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+
+        .tax-summary-wrapper { display: flex; margin-top: 15px; border: 1px solid #000; }
+        .tax-table-side { flex: 1.5; border-right: 1px solid #000; }
+        .totals-side { flex: 1; }
+
+        .footer-area { margin-top: 40px; display: flex; justify-content: space-between; }
+        .print-btn { position: fixed; bottom: 20px; right: 20px; padding: 15px 30px; background: #27ae60; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 100; }
+
+        @media print {
+            .editor-panel, .print-btn { display: none; }
+            body { background: white; }
+            .preview-panel { padding: 0; }
+            .invoice-box { border: none; box-shadow: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="editor-panel">
+        <h2>Invoice Editor</h2>
+        
+        <div class="input-group">
+            <label>Party Name</label>
+            <input type="text" id="inPartyName" value="Sk Abul BasarAli">
+        </div>
+
+        <div class="input-group">
+            <label>Party Address</label>
+            <textarea id="inPartyAddress" placeholder="Enter Party Address">Dingalhati Chechua, Hooghly, West Bengal, 712404</textarea>
+        </div>
+
+        <div class="input-group">
+            <label>Invoice Number</label>
+            <input type="text" id="inInvNo" value="MAF/26-27/1851">
+        </div>
+
+        <div class="input-group">
+            <label>Bill Date</label>
+            <input type="date" id="inDate" value="2026-06-18">
+        </div>
+
+        <div class="input-group">
+            <label>Financer</label>
+            <input type="text" id="inFinancer" value="BAJAJ FINANCE">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
+
+        <div class="input-group">
+            <label>Product Name</label>
+            <input type="text" id="inProdName" value="HAIER - LED - H32S80FFX">
+        </div>
+
+        <div class="input-group">
+            <label>Serial No</label>
+            <input type="text" id="inSerial" value="DH1U630060167R7WLL7T">
+        </div>
+
+        <div class="input-group">
+            <label>HSN Code</label>
+            <input type="text" id="inHsn" value="85287215">
+        </div>
+
+        <div class="input-group">
+            <label>Total Price (With Tax)</label>
+            <input type="number" id="inTotalIncl" value="16000" step="0.01">
+        </div>
+
+        <div class="input-group">
+            <label>GST Rate (%)</label>
+            <select id="inGstRate">
+                <option value="5">5%</option>
+                <option value="12">12%</option>
+                <option value="18" selected>18%</option>
+                <option value="28">28%</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>DO ID</label>
+            <input type="text" id="inDoId" value="B419190170">
+        </div>
+    </div>
+
+    <div class="preview-panel">
+        <div class="invoice-box" id="invoice">
+            <div class="invoice-header-title">Tax Invoice</div>
+            
+            <div class="header-container">
+                <div style="font-size: 28px; font-weight: bold; letter-spacing: 1px;">M.A. Furniture</div>
+                <div style="font-size: 13px; margin-top: 5px;">MASAT, MUKUNDAPUR, HOOGHLY, WEST BENGAL 712701</div>
+                <div style="font-size: 13px;">Phone: <b>8293098401</b> | Email: <b>mafarniture2023@gmail.com</b></div>
+                <div style="font-size: 13px;">GSTIN: <b>19AQTPK1866H3Z6</b> | State: <b>19-West Bengal</b></div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-col">
+                    <b>Bill To:</b><br>
+                    <span id="outPartyName" style="font-size:14px; font-weight:bold;">Sk Abul BasarAli</span><br>
+                    <span id="outPartyAddress" style="display:block; font-size:12px; margin-top:2px;">Dingalhati Chechua, Hooghly, West Bengal, 712404</span>
+                    Contact No: 8376952008<br>
+                    State: 19-West Bengal
+                </div>
+                <div class="info-col">
+                    <b>Invoice Details:</b><br>
+                    Invoice No: <span id="outInvNo">MAF/26-27/1851</span><br>
+                    Date: <span id="outDate">18/06/2026</span><br>
+                    Place of Supply: 19-West Bengal
+                </div>
+                <div class="info-col">
+                    Financer: <span id="outFinancer">BAJAJ FINANCE</span><br>
+                    DO ID: <span id="outDoId">B419190170</span>
+                </div>
+            </div>
+
+            <table style="margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width:30px">#</th>
+                        <th>Item name</th>
+                        <th>HSN/SAC</th>
+                        <th>Qty</th>
+                        <th>Price/Unit</th>
+                        <th>GST</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="height: 120px; vertical-align: top;">
+                        <td>1</td>
+                        <td>
+                            <b id="outProdName">HAIER - LED - H32S80FFX</b><br>
+                            <small>Serial No: <span id="outSerial">DH1U630060167R7WLL7T</span></small>
+                        </td>
+                        <td id="outHsn">85287215</td>
+                        <td>1 Pcs</td>
+                        <td>₹ <span id="outBasePrice">13,559.32</span></td>
+                        <td>₹ <span id="outGstAmtRow">2,440.68</span> (<span id="outGstRateRow">18</span>%)</td>
+                        <td>₹ <span id="outTotalRow">16,000.00</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="tax-summary-wrapper">
+                <div class="tax-table-side">
+                    <table>
+                        <tr>
+                            <th rowspan="2">HSN/SAC</th>
+                            <th rowspan="2">Taxable Amt</th>
+                            <th colspan="2" style="text-align:center">CGST</th>
+                            <th colspan="2" style="text-align:center">SGST</th>
+                        </tr>
+                        <tr>
+                            <th>Rate</th><th>Amt</th>
+                            <th>Rate</th><th>Amt</th>
+                        </tr>
+                        <tr>
+                            <td id="taxHsn">85287215</td>
+                            <td id="taxBase">13559.32</td>
+                            <td><span class="halfRate">9</span>%</td><td id="taxCgst">1220.34</td>
+                            <td><span class="halfRate">9</span>%</td><td id="taxSgst">1220.34</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="totals-side">
+                    <table style="border:none;">
+                        <tr><td style="border:none; padding-top:15px;">Sub Total:</td><td style="border:none; text-align:right; padding-top:15px;">₹ <span id="finalSub">16,000.00</span></td></tr>
+                        <tr style="font-weight:bold; font-size:15px;"><td style="border:none;">Total:</td><td style="border:none; text-align:right;">₹ <span id="finalTotal">16,000.00</span></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:15px; font-size:13px;">
+                <b>Invoice Amount in Words:</b><br>
+                <span id="outWords" style="text-transform: capitalize; font-weight: 500;">Sixteen Thousand Rupees only</span>
+            </div>
+
+            <div class="footer-area">
+                <div style="font-size:11px; border: 1px solid #000; padding:10px; width:260px;">
+                    <b>Bank Details:</b><br>
+                    AXIS BANK, MASAT<br>
+                    A/C No: 925020003222775<br>
+                    IFSC: UTIB0003040<br>
+                    Name: M A FURNITURE
+                </div>
+                <div style="text-align:center; padding-top:60px;">
+                    <div style="border-top: 1px solid #000; width:220px; font-weight: bold;">Authorized Signatory</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">Print Invoice</button>
+
+    <script>
+        const inputIds = ['inPartyName', 'inPartyAddress', 'inInvNo', 'inDate', 'inFinancer', 'inProdName', 'inSerial', 'inHsn', 'inTotalIncl', 'inGstRate', 'inDoId'];
+        
+        function updateInvoice() {
+            const party = document.getElementById('inPartyName').value;
+            const address = document.getElementById('inPartyAddress').value;
+            const invNo = document.getElementById('inInvNo').value;
+            const rawDate = document.getElementById('inDate').value;
+            const financer = document.getElementById('inFinancer').value;
+            const prod = document.getElementById('inProdName').value;
+            const serial = document.getElementById('inSerial').value;
+            const hsn = document.getElementById('inHsn').value;
+            const totalIncl = parseFloat(document.getElementById('inTotalIncl').value) || 0;
+            const gstRate = parseFloat(document.getElementById('inGstRate').value);
+            const doId = document.getElementById('inDoId').value;
+
+            // Calculations
+            const taxable = totalIncl / (1 + (gstRate / 100));
+            const totalTax = totalIncl - taxable;
+            const halfTax = totalTax / 2;
+            const halfRate = gstRate / 2;
+
+            // Updates
+            document.getElementById('outPartyName').innerText = party;
+            document.getElementById('outPartyAddress').innerText = address;
+            document.getElementById('outInvNo').innerText = invNo;
+            document.getElementById('outDate').innerText = rawDate.split('-').reverse().join('/');
+            document.getElementById('outFinancer').innerText = financer;
+            document.getElementById('outProdName').innerText = prod;
+            document.getElementById('outSerial').innerText = serial;
+            document.getElementById('outHsn').innerText = hsn;
+            document.getElementById('outDoId').innerText = doId;
+            
+            document.getElementById('outBasePrice').innerText = taxable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('outGstAmtRow').innerText = totalTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('outGstRateRow').innerText = gstRate;
+            document.getElementById('outTotalRow').innerText = totalIncl.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            document.getElementById('taxHsn').innerText = hsn;
+            document.getElementById('taxBase').innerText = taxable.toFixed(2);
+            document.querySelectorAll('.halfRate').forEach(el => el.innerText = halfRate);
+            document.getElementById('taxCgst').innerText = halfTax.toFixed(2);
+            document.getElementById('taxSgst').innerText = halfTax.toFixed(2);
+            
+            document.getElementById('finalSub').innerText = totalIncl.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            document.getElementById('finalTotal').innerText = totalIncl.toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+            document.getElementById('outWords').innerText = numberToWords(Math.round(totalIncl)) + " Rupees only";
+        }
+
+        function numberToWords(num) {
+            var a = ['','one ','two ','three ','four ','five ','six ','seven ','eight ','nine ','ten ','eleven ','twelve ','thirteen ','fourteen ','fifteen ','sixteen ','seventeen ','eighteen ','nineteen '];
+            var b = ['', '', 'twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+            if ((num = num.toString()).length > 9) return 'overflow';
+            n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return ''; var str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+            return str;
+        }
+
+        inputIds.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateInvoice);
+        });
+
+        updateInvoice();
+    </script>
+</body>
+</html>
